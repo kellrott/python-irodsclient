@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from irods.models import Model
 from irods.column import Column, Keyword
-from irods.message import (IntegerIntegerMap, IntegerStringMap, StringStringMap, 
+from irods.message import (IntegerIntegerMap, IntegerStringMap, StringStringMap,
     GenQueryRequest, GenQueryResponse, empty_gen_query_out,
     iRODSMessage)
 from irods.api_number import api_number
@@ -48,8 +48,8 @@ class Query(object):
         new_q = Query(self.sess)
         new_q.columns = self.columns
         new_q.criteria = self.criteria
-        new_q.limit = self._limit
-        new_q.offset = self._offset
+        new_q._limit = self._limit
+        new_q._offset = self._offset
         return new_q
 
     def filter(self, *criteria):
@@ -85,16 +85,16 @@ class Query(object):
     #todo store criterion for columns and criterion for keywords in seaparate lists
     def _conds_message(self):
         dct = dict([
-            (criterion.query_key.icat_id, criterion.op + ' ' + criterion.value) 
-            for criterion in self.criteria 
+            (criterion.query_key.icat_id, criterion.op + ' ' + criterion.value)
+            for criterion in self.criteria
             if isinstance(criterion.query_key, Column)
         ])
         return IntegerStringMap(dct)
 
     def _kw_message(self):
         dct = dict([
-            (criterion.query_key.icat_key, criterion.op + ' ' + criterion.value) 
-            for criterion in self.criteria 
+            (criterion.query_key.icat_key, criterion.op + ' ' + criterion.value)
+            for criterion in self.criteria
             if isinstance(criterion.query_key, Keyword)
         ])
         return StringStringMap(dct)
@@ -122,9 +122,9 @@ class Query(object):
                 results = result_message.get_main_message(GenQueryResponse)
                 result_set = ResultSet(results)
             except CAT_NO_ROWS_FOUND:
-                result_set = ResultSet(empty_gen_query_out(self.columns.keys())) 
+                result_set = ResultSet(empty_gen_query_out(self.columns.keys()))
         return result_set
-        
+
     def all(self):
         return self.execute()
 
