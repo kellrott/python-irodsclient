@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from irods.models import Model
 from irods.column import Column, Keyword
-from irods.message import (IntegerIntegerMap, IntegerStringMap, StringStringMap,
+from irods.message import (IntegerIntegerMap, IntegerStringMap, IntegerArrayStringMap, StringStringMap,
     GenQueryRequest, GenQueryResponse, empty_gen_query_out,
     iRODSMessage)
 from irods.api_number import api_number
@@ -84,12 +84,14 @@ class Query(object):
 
     #todo store criterion for columns and criterion for keywords in seaparate lists
     def _conds_message(self):
-        dct = dict([
-            (criterion.query_key.icat_id, criterion.op + ' ' + criterion.value)
-            for criterion in self.criteria
-            if isinstance(criterion.query_key, Column)
-        ])
-        return IntegerStringMap(dct)
+
+        dct = {}
+        for criterion in self.criteria:
+            if isinstance(criterion.query_key, Column):
+                if criterion.query_key.icat_id not in dct:
+                    dct[criterion.query_key.icat_id] = []
+                dct[criterion.query_key.icat_id].append( criterion.op + ' ' + criterion.value )
+        return IntegerArrayStringMap(dct)
 
     def _kw_message(self):
         dct = dict([
